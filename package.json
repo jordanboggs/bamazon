@@ -1,0 +1,22 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "for DU Coding Bootcamp",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/preaksneview/bamazon.git"
+  },
+  "author": "Jordan Boggs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/preaksneview/bamazon/issues"
+  },
+  "homepage": "https://github.com/preaksneview/bamazon#readme",
+  "dependencies": {
+    "mysql": "^2.15.0"
+  }
+}
