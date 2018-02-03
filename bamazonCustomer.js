@@ -24,9 +24,17 @@ connection.query("SELECT * FROM products", function(err, res) {
   inquirer.prompt([
     {
       type: 'list',
-      name: 'product-id',
+      name: 'productId',
       message: 'Which product would you like to buy?',
       choices: products
+    },
+    {
+      type: 'input',
+      name: 'desiredQuant',
+      message: "How many would you like to buy?"
     }
-  ]).then();
+  ]).then(answers => {
+    const product = answers.productId;
+    const desiredQuant = answers.desiredQuant; 
+  });
 });
