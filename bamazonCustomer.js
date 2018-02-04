@@ -16,8 +16,10 @@ connection.query("SELECT * FROM products", function(err, res) {
   if (err) console.log(err);
 
   let products = [];
+  let printProducts = [];
   for (let i = 0; i < res.length; i++) {
-    products.push(
+    products.push(res[i]);
+    printProducts.push(
       `ID: ${colors.white(res[i].item_id)}  Product: ${res[i].product_name}  Price: ${colors.blue(res[i].price)}`
     );
   }
@@ -26,7 +28,7 @@ connection.query("SELECT * FROM products", function(err, res) {
       type: 'list',
       name: 'productId',
       message: 'Which product would you like to buy?',
-      choices: products
+      choices: printProducts
     },
     {
       type: 'input',
@@ -36,5 +38,13 @@ connection.query("SELECT * FROM products", function(err, res) {
   ]).then(answers => {
     const product = answers.productId;
     const desiredQuant = answers.desiredQuant; 
+    
+    if (desiredQuant <= product.stock_quantity) {
+      // reduce the stock_quantity by desiredQuant
+    }
+    else {
+      console.log(colors.yellow("Sorry, we only have " + product.stock_quantity 
+        + " in stock"));
+    }
   });
 });
