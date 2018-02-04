@@ -25,6 +25,9 @@ inquirer.prompt([
     case ("View products for sale"):
       viewProducts();
       break;
+    case ("View low inventory"):
+      viewLowInventory();
+      break;
   }
 });
 
@@ -45,4 +48,29 @@ const viewProducts = function() {
     }
   });
   connection.end();
-}
+};
+
+// list all items with an inventory count lower than five.
+const viewLowInventory = function() {
+  let query = "SELECT id, product_name, price, stock_quantity FROM products ";
+  query += "WHERE stock_quantity < 5";
+  connection.query(query, function(err, res) {
+    if (err) {
+      console.log(colors.red(err));
+    }
+    else {
+      if (res.length > 0) {
+        for (let i = 0; i < res.length; i++) {
+          console.log(
+            `ID: ${res[i].id} Product: ${res[i].product_name} Price: $` + 
+            `${res[i].price} Inventory: ${res[i].stock_quantity}`
+          );
+        }  
+      }
+      else {
+        console.log(colors.green("No items are low stock."));
+      }
+    }
+  });
+  connection.end();
+};
