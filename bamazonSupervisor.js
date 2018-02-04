@@ -31,10 +31,8 @@ inquirer.prompt([
 
 const viewSalesByDept = function() {
   // Set up the queries
-  let query1 = "SELECT department_id, department_name, over_head_costs ";
-  query1 += "FROM departments";
-
-  let query2 = "SELECT product_sales FROM products WHERE department_name = ?";
+  let query = "SELECT department_id, department_name, over_head_costs ";
+  query += "FROM departments";
 
   // Set up the variables for the table
   let department_id;
@@ -44,7 +42,7 @@ const viewSalesByDept = function() {
   let total_profit;
 
   // Do query1
-  connection.query(query1, function(err, res) {
+  connection.query(query, function(err, res) {
     if (err) console.log(colors.red(err));
 
     // Set values for the table
@@ -61,7 +59,17 @@ const viewSalesByDept = function() {
 };
 
 const secondQuery = function(department) {
-  let product_sales = ;
+  let product_sales = 0;
+  let query = "SELECT product_sales FROM products WHERE department_name = ?";
+
+  connection.query(query, department, function(err, res) {
+    if (err) console.log(colors.red(err));
+    
+    // Loop through results and add to product_sales
+    for (let i = 0; i < res.length; i++) {
+      product_sales += res[i].product_sales;
+    }
+  });
   return product_sales;
 };
 
