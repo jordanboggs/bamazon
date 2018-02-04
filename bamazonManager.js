@@ -30,6 +30,10 @@ inquirer.prompt([
       break;
     case ("Add to inventory"):
       addToInventoryPrompt();
+      break;
+    case ("Add new product"):
+      addNewProductPrompt();
+      break;
   }
 });
 
@@ -151,4 +155,81 @@ const addStockQuantity = function(id, desiredQuantity, stockQuantity) {
       connection.end();
     }
   });
+};
+
+// allow the manager to add a completely new product to the store
+const addNewProductPrompt = function() {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "product",
+      message: "Product name:"
+    },
+    {
+      type: "input",
+      name: "department",
+      message: "Department:"
+    },
+    {
+      type: "input",
+      name: "price",
+      message: "Price: $",
+      validate: function(input) {
+        // Declare function as asynchronous, and save the done callback
+        const done = this.async();
+    
+        // Do async stuff
+        setTimeout(function() {
+          const parsedInput = parseFloat(input);
+          if (typeof parsedInput !== 'number') {
+            // Pass the return value in the done callback
+            done('You need to provide a number');
+            return;
+          }
+          // Pass the return value in the done callback
+          done(null, true);
+        }, 3000);
+      }
+    },
+    {
+      type: "input",
+      name: "stock",
+      message: "Stock quantity:",
+      validate: function(input) {
+        // Declare function as asynchronous, and save the done callback
+        const done = this.async();
+    
+        // Do async stuff
+        setTimeout(function() {
+          const parsedInput = parseInt(input);
+          if (typeof parsedInput !== 'number') {
+            // Pass the return value in the done callback
+            done('You need to provide a number');
+            return;
+          }
+          // Pass the return value in the done callback
+          done(null, true);
+        }, 3000);
+      }
+    }
+  ]).then(function(answers) {
+    addNewProduct(answers.product, answers.department, 
+                  answers.price, answers.stock);
+  });
+}
+
+const addNewProduct = function(product, department, price, quantity) {
+  let query = "INSERT INTO products ";
+  query += "SET product_name = ?, department_name = ?, price = ?, ";
+  query += "stock_quantity = ?";
+  connection.query(query, 
+    [product, department, price, quantity], function(err, res) {
+      if (err) {
+        console.log(colors.red(err));
+      }
+      else {
+        console.log(colors.green("Done!"));
+        connection.end();
+      }
+    });
 };
