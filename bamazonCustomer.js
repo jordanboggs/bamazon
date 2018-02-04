@@ -9,20 +9,22 @@ const connection = mysql.createConnection({
   port     : 8889
 });
 
-// connection.query('QUERY ?', [values], function(err, res))
-
 // Prompt customer to pick an item to buy
 connection.query("SELECT * FROM products", function(err, res) {
   if (err) console.log(colors.red(err));
 
   let products = [];
   let printProducts = [];
+
+  // Generate menu items
   for (let i = 0; i < res.length; i++) {
     products.push(res[i]);
     printProducts.push(
       `ID: ${res[i].id}  Product: ${res[i].product_name}  Price: ${res[i].price}`
     );
   }
+
+  // Prompt user to select item and quantity
   inquirer.prompt([
     {
       type: 'list',
@@ -36,23 +38,25 @@ connection.query("SELECT * FROM products", function(err, res) {
       message: "How many would you like to buy?"
     }
   ]).then(answers => {
+    // string of menu item selected by user
     const productPrintout = answers.productId;
-    console.log("productPrintout",productPrintout);
+    // quantity user wishes to purchase
     const desiredQuant = parseInt(answers.desiredQuant); 
-
+    // index of desired product
     const productIndex = findIndexOfProduct(printProducts, productPrintout);
     let productToPurchase = products[productIndex];
     let productId = productToPurchase.id;
     
+    // Check if there is enough in stock
     if (desiredQuant <= productToPurchase.stock_quantity) {
       // reduce the stock_quantity on DB by desiredQuant
       reduceStockQuantity(productId, desiredQuant, productToPurchase.stock_quantity);
     }
     else {
       // log Sorry, we only have <quant> in stock
+      console.log(colors.red(`Sorry, we only have ${productToPurchase.stock_quantity} in stock.`))
     }
   });
-  // connection.end();
 });
 
 const findIndexOfProduct = function(printProducts, productPrintout) {
@@ -75,6 +79,12 @@ const reduceStockQuantity = function(id, desiredQuantity, stockQuantity) {
   newStockQuantity = stockQuantity - desiredQuantity;
 
   connection.query(query, [newStockQuantity, id], function(err) {
-    if (err) console.log(colors.red(err));
+    if (err) {
+      console.log(colors.red(err));
+    }
+    else {
+      console.log(colors.green("Enjoy!"));
+      connection.end();
+    }
   });
 };
