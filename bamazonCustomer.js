@@ -55,6 +55,7 @@ connection.query("SELECT * FROM products", function(err, res) {
     else {
       // log Sorry, we only have <quant> in stock
       console.log(colors.red(`Sorry, we only have ${productToPurchase.stock_quantity} in stock.`))
+      connection.end();
     }
   });
 });
