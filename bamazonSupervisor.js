@@ -34,28 +34,27 @@ const viewSalesByDept = function() {
   let query = "SELECT department_id, department_name, over_head_costs ";
   query += "FROM departments";
 
-  // Set up the variables for the table
-  let department_id;
-  let department_name = "";
-  let over_head_costs;
-  let product_sales;
-  let total_profit;
+  console.log(colors.bold.white("department_id  department_name  " + 
+    "over_head_costs  product_sales  total_profit"));
 
   // Do query1
   connection.query(query, function(err, res) {
     if (err) console.log(colors.red(err));
 
-    // Set values for the table
-    department_id = res.department_id;
-    department_name = res.department_name;
-    over_head_costs = res.over_head_costs;
-
-    // for loop to add to product_sales by department
+    // for loop to add to create a row for each department
     for (let i = 0; i < res.length; i++) {
-      product_sales += secondQuery(res[i].department_name);
+      // Set up the variables for the table
+      let department_id = res[i].department_id;
+      let department_name = res[i].department_name;
+      let over_head_costs = res[i].over_head_costs;
+      let product_sales = secondQuery(res[i].department_name);
+      let total_profit = product_sales - over_head_costs;
+
+      console.log(
+        `${department_id} ${department_name} ${over_head_costs} ${product_sales} ${total_profit}`
+      );
     }
   });
-  connection.end();
 };
 
 const secondQuery = function(department) {
@@ -67,7 +66,8 @@ const secondQuery = function(department) {
     
     // Loop through results and add to product_sales
     for (let i = 0; i < res.length; i++) {
-      product_sales += res[i].product_sales;
+      product_sales += parseFloat(res[i].product_sales);
+      console.log("product_sales",product_sales);
     }
   });
   return product_sales;
