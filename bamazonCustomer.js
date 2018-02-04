@@ -20,7 +20,7 @@ connection.query("SELECT * FROM products", function(err, res) {
   for (let i = 0; i < res.length; i++) {
     products.push(res[i]);
     printProducts.push(
-      `ID: ${res[i].item_id}  Product: ${res[i].product_name}  Price: ${res[i].price}`
+      `ID: ${res[i].id}  Product: ${res[i].product_name}  Price: ${res[i].price}`
     );
   }
   inquirer.prompt([
@@ -38,19 +38,21 @@ connection.query("SELECT * FROM products", function(err, res) {
   ]).then(answers => {
     const productPrintout = answers.productId;
     console.log("productPrintout",productPrintout);
-    const desiredQuant = answers.desiredQuant; 
+    const desiredQuant = parseInt(answers.desiredQuant); 
 
     const productIndex = findIndexOfProduct(printProducts, productPrintout);
-    console.log("the index is",productIndex);
+    let productToPurchase = products[productIndex];
+    let productId = productToPurchase.id;
     
-    // if (desiredQuant <= product.stock_quantity) {
-    //   // reduce the stock_quantity on DB by desiredQuant
-    // }
-    // else {
-    //   // log Sorry, we only have <quant> in stock
-    // }
+    if (desiredQuant <= productToPurchase.stock_quantity) {
+      // reduce the stock_quantity on DB by desiredQuant
+      reduceStockQuantity(productId, desiredQuant, productToPurchase.stock_quantity);
+    }
+    else {
+      // log Sorry, we only have <quant> in stock
+    }
   });
-  connection.end();
+  // connection.end();
 });
 
 const findIndexOfProduct = function(printProducts, productPrintout) {
@@ -62,4 +64,17 @@ const findIndexOfProduct = function(printProducts, productPrintout) {
     }
   }
   return -1;
+};
+
+const reduceStockQuantity = function(id, desiredQuantity, stockQuantity) {
+  // reduce stock_quantity by quantity
+  let query = "UPDATE products "
+  query +=    "SET stock_quantity = ? ";
+  query +=    "WHERE id = ?";
+
+  newStockQuantity = stockQuantity - desiredQuantity;
+
+  connection.query(query, [newStockQuantity, id], function(err) {
+    if (err) console.log(colors.red(err));
+  });
 };
