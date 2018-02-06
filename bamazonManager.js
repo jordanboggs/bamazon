@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const colors = require('colors');
+const cTable = require('console.table');
 const mysql      = require('mysql');
 const connection = mysql.createConnection({
   host     : 'localhost',
@@ -40,18 +41,20 @@ inquirer.prompt([
 // list every available item: the item IDs, names, prices, and quantities
 const viewProducts = function() {
   let query = "SELECT id, product_name, price, stock_quantity FROM products";
+
+  let table = [];
+  
   connection.query(query, function(err, res) {
     if (err) {
       console.log(colors.red(err));
     }
     else {
       for (let i = 0; i < res.length; i++) {
-        console.log(
-          `ID: ${res[i].id} Product: ${res[i].product_name} Price: $` + 
-          `${res[i].price} Inventory: ${res[i].stock_quantity}`
-        );
+        table.push([res[i].id, res[i].product_name, res[i].price, 
+          res[i].stock_quantity]);
       }
     }
+    console.table(["ID", "Product", "Price", "Inventory"], table);
   });
   connection.end();
 };
@@ -60,6 +63,9 @@ const viewProducts = function() {
 const viewLowInventory = function() {
   let query = "SELECT id, product_name, price, stock_quantity FROM products ";
   query += "WHERE stock_quantity < 5";
+
+  let table = [];
+
   connection.query(query, function(err, res) {
     if (err) {
       console.log(colors.red(err));
@@ -67,11 +73,10 @@ const viewLowInventory = function() {
     else {
       if (res.length > 0) {
         for (let i = 0; i < res.length; i++) {
-          console.log(
-            `ID: ${res[i].id} Product: ${res[i].product_name} Price: $` + 
-            `${res[i].price} Inventory: ${res[i].stock_quantity}`
-          );
-        }  
+          table.push([res[i].id, res[i].product_name, 
+                      res[i].price, res[i].stock_quantity]);
+        }
+        console.table(["ID", "Product", "Price", "Inventory"], table);  
       }
       else {
         console.log(colors.green("No items are low stock."));

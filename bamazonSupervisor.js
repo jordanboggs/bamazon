@@ -33,7 +33,8 @@ inquirer.prompt([
 const viewSalesByDept = function() {
   // Set up the queries
   let query = "SELECT departments.department_id, products.department_name, ";
-  query += "departments.over_head_costs, 	products.product_sales, ";
+  query += "departments.over_head_costs, 	";
+  query += "(SUM(product_sales)) AS product_sales, ";
   query += "(products.product_sales - departments.over_head_costs) AS total_profit ";
   query += "FROM products ";
   query += "INNER JOIN departments ON departments.department_name ";
