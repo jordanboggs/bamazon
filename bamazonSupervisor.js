@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const colors = require('colors');
+const cTable = require('console.table');
 const mysql      = require('mysql');
 const connection = mysql.createConnection({
   host     : 'localhost',
@@ -31,11 +32,28 @@ inquirer.prompt([
 
 const viewSalesByDept = function() {
   // Set up the queries
-  let query = "SELECT department_id, department_name, over_head_costs ";
-  query += "FROM departments";
+  let query = "SELECT departments.department_id, products.department_name, ";
+  query += "departments.over_head_costs, 	products.product_sales, ";
+  query += "(products.product_sales - departments.over_head_costs) AS total_profit ";
+  query += "FROM products ";
+  query += "INNER JOIN departments ON departments.department_name ";
+  query += "= products.department_name ";
+  query += "GROUP BY department_name";
 
-  console.log(colors.bold.white("department_id  department_name  " + 
-    "over_head_costs  product_sales  total_profit"));
+  let table = [["department_id", "department_name", "over_head_costs",
+               "product_sales", "total_profit"]];
+
+  connection.query(query, function(err, res) {
+    if (err) console.log(colors.red(err));
+
+    for (let i = 0; i < res.length; i++) {
+      table.push([res[i].department_id, res[i].department_name, 
+                  res[i].over_head_costs, res[i].product_sales, 
+                  res[i].total_profit]);
+    }
+  });
+  console.log(table);
+  console.table(table[0], table.slice(1));
 };
 
 const createDepartment = function() {
@@ -43,8 +61,6 @@ const createDepartment = function() {
 };
 
 /*
-USE bamazon;
-
 SELECT departments.department_id, products.department_name, 
   departments.over_head_costs, 	products.product_sales, 
   (products.product_sales - departments.over_head_costs) AS total_profit
