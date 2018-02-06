@@ -40,20 +40,19 @@ const viewSalesByDept = function() {
   query += "= products.department_name ";
   query += "GROUP BY department_name";
 
-  let table = [["department_id", "department_name", "over_head_costs",
-               "product_sales", "total_profit"]];
+  let table = [];
 
   connection.query(query, function(err, res) {
     if (err) console.log(colors.red(err));
-
+    
     for (let i = 0; i < res.length; i++) {
       table.push([res[i].department_id, res[i].department_name, 
                   res[i].over_head_costs, res[i].product_sales, 
                   res[i].total_profit]);
     }
+    console.table(["department_id", "department_name", "over_head_costs", 
+      "product_sales", "total_profit"], table);
   });
-  console.log(table);
-  console.table(table[0], table.slice(1));
 };
 
 const createDepartment = function() {
