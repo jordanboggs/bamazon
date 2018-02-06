@@ -63,6 +63,9 @@ const viewProducts = function() {
 const viewLowInventory = function() {
   let query = "SELECT id, product_name, price, stock_quantity FROM products ";
   query += "WHERE stock_quantity < 5";
+
+  let table = [];
+
   connection.query(query, function(err, res) {
     if (err) {
       console.log(colors.red(err));
@@ -70,11 +73,10 @@ const viewLowInventory = function() {
     else {
       if (res.length > 0) {
         for (let i = 0; i < res.length; i++) {
-          console.log(
-            `ID: ${res[i].id} Product: ${res[i].product_name} Price: $` + 
-            `${res[i].price} Inventory: ${res[i].stock_quantity}`
-          );
-        }  
+          table.push([res[i].id, res[i].product_name, 
+                      res[i].price, res[i].stock_quantity]);
+        }
+        console.table(["ID", "Product", "Price", "Inventory"], table);  
       }
       else {
         console.log(colors.green("No items are low stock."));
