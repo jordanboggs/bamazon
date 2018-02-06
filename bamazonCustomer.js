@@ -50,7 +50,9 @@ connection.query("SELECT * FROM products", function(err, res) {
     // Check if there is enough in stock
     if (desiredQuant <= productToPurchase.stock_quantity) {
       // reduce the stock_quantity on DB by desiredQuant
-      reduceStockQuantity(productId, desiredQuant, productToPurchase.stock_quantity);
+      reduceStockQuantity(productId, desiredQuant, 
+                          productToPurchase.stock_quantity, 
+                          productToPurchase.price);
     }
     else {
       // log Sorry, we only have <quant> in stock
@@ -71,21 +73,24 @@ const findIndexOfProduct = function(printProducts, productPrintout) {
   return -1;
 };
 
-const reduceStockQuantity = function(id, desiredQuantity, stockQuantity) {
+const reduceStockQuantity = function(id, desiredQuantity, stockQuantity, price) {
   // reduce stock_quantity by quantity
   let query = "UPDATE products "
-  query +=    "SET stock_quantity = ? ";
+  query +=    "SET stock_quantity = ?, product_sales = ? ";
   query +=    "WHERE id = ?";
 
-  newStockQuantity = stockQuantity - desiredQuantity;
+  const newStockQuantity = stockQuantity - desiredQuantity;
+  const newProductSales = desiredQuantity * price;
 
-  connection.query(query, [newStockQuantity, id], function(err) {
-    if (err) {
-      console.log(colors.red(err));
+  connection.query(query, [newStockQuantity, newProductSales, id], 
+    function(err) {
+      if (err) {
+        console.log(colors.red(err));
+      }
+      else {
+        console.log(colors.green("Enjoy!"));
+        connection.end();
+      }
     }
-    else {
-      console.log(colors.green("Enjoy!"));
-      connection.end();
-    }
-  });
+  );
 };
