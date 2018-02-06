@@ -25,7 +25,7 @@ inquirer.prompt([
       viewSalesByDept();
       break;
     case ("Create new department"):
-      createDepartment();
+      departmentPrompt();
       break;
   }
 });
@@ -53,17 +53,53 @@ const viewSalesByDept = function() {
     console.table(["department_id", "department_name", "over_head_costs", 
       "product_sales", "total_profit"], table);
   });
+  connection.end();
 };
 
-const createDepartment = function() {
-
+const departmentPrompt = function() {
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'department_name',
+      message: "New department name:"
+    },
+    {
+      type: 'input',
+      name: 'over_head_costs',
+      message: "Overhead costs:",
+      validate: function(input) {
+        // Declare function as asynchronous, and save the done callback
+        const done = this.async();
+    
+        // Do async stuff
+        setTimeout(function() {
+          const parsedInput = parseFloat(input);
+          if (typeof parsedInput !== 'number') {
+            // Pass the return value in the done callback
+            done('You need to provide a number');
+            return;
+          }
+          // Pass the return value in the done callback
+          done(null, true);
+        }, 3000);
+      }
+    }
+  ]).then(function(answers) {
+    const newDepartmentName = answers.department_name;
+    const newOverHeadCosts = answers.over_head_costs; 
+    createDepartment(newDepartmentName, newOverHeadCosts);
+  });
 };
 
-/*
-SELECT departments.department_id, products.department_name, 
-  departments.over_head_costs, 	products.product_sales, 
-  (products.product_sales - departments.over_head_costs) AS total_profit
-FROM products
-INNER JOIN departments ON departments.department_name = products.department_name
-GROUP BY department_name
-*/
+const createDepartment = function(newDepartmentName, newOverHeadCosts) {
+  let query = "INSERT INTO departments SET department_name = ?, ";
+  query += "over_head_costs = ?";
+  
+  connection.query(query, [newDepartmentName, newOverHeadCosts], 
+    function(err, res) {
+      if (err) console.log(err)
+      else console.log(colors.green("Success!"));
+    }
+  );
+  connection.end();
+};
