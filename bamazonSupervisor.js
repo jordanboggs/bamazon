@@ -36,43 +36,19 @@ const viewSalesByDept = function() {
 
   console.log(colors.bold.white("department_id  department_name  " + 
     "over_head_costs  product_sales  total_profit"));
-
-  // Do query1
-  connection.query(query, function(err, res) {
-    if (err) console.log(colors.red(err));
-
-    // for loop to add to create a row for each department
-    for (let i = 0; i < res.length; i++) {
-      // Set up the variables for the table
-      let department_id = res[i].department_id;
-      let department_name = res[i].department_name;
-      let over_head_costs = res[i].over_head_costs;
-      let product_sales = secondQuery(res[i].department_name);
-      let total_profit = product_sales - over_head_costs;
-
-      console.log(
-        `${department_id} ${department_name} ${over_head_costs} ${product_sales} ${total_profit}`
-      );
-    }
-  });
-};
-
-const secondQuery = function(department) {
-  let product_sales = 0;
-  let query = "SELECT product_sales FROM products WHERE department_name = ?";
-
-  connection.query(query, department, function(err, res) {
-    if (err) console.log(colors.red(err));
-    
-    // Loop through results and add to product_sales
-    for (let i = 0; i < res.length; i++) {
-      product_sales += parseFloat(res[i].product_sales);
-      console.log("product_sales",product_sales);
-    }
-  });
-  return product_sales;
 };
 
 const createDepartment = function() {
 
 };
+
+/*
+USE bamazon;
+
+SELECT departments.department_id, products.department_name, 
+  departments.over_head_costs, 	products.product_sales, 
+  (products.product_sales - departments.over_head_costs) AS total_profit
+FROM products
+INNER JOIN departments ON departments.department_name = products.department_name
+GROUP BY department_name
+*/
